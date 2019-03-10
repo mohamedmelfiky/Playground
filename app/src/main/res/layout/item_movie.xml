@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="2dp">
+
+    <ImageView
+        android:id="@+id/moviePosterImgV"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="2:3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+    <TextView
+        android:id="@+id/movieTitleTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="@drawable/movie_title_bg"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:padding="8dp"
+        android:textAppearance="?attr/textAppearanceBody2"
+        android:textColor="#BF000000"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="@id/moviePosterImgV"
+        app:layout_constraintEnd_toEndOf="@id/moviePosterImgV"
+        app:layout_constraintStart_toStartOf="@id/moviePosterImgV"
+        tools:text="Captain Marvel aksdas dasda sda sasdas das das das das das das dasd asd asd asd" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
