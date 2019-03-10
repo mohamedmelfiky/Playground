@@ -9,26 +9,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.lang.Exception
 
-class MoviesViewModel : ViewModel() {
+class MoviesViewModel : BaseViewModel<MoviesState>(MoviesState()) {
 
     private val moviesRepo = MoviesRepo(getApiService())
 
-    val actionLiveData = MutableLiveData<MoviesAction>()
-    val stateLiveData = MutableLiveData<MoviesState>()
-
-    private val actionObserver = { action: MoviesAction -> onAction(action) }
-
-    init {
-        actionLiveData.observeForever(actionObserver)
-        actionLiveData.value = MoviesAction.Started
-    }
-
-    private fun onAction(action: MoviesAction) {
+    override fun actOnAction(action: Action) {
         when(action) {
-            MoviesAction.Started -> {
+            Started -> {
                 getMovies()
             }
-            MoviesAction.Refresh -> {
+            Refresh -> {
                 refreshMovies()
             }
         }
@@ -37,16 +27,16 @@ class MoviesViewModel : ViewModel() {
     private fun getMovies() {
         viewModelScope.launch(Dispatchers.Main) {
             try {
-                stateLiveData.value = MoviesState(loading = View.VISIBLE)
+                sendState(MoviesState(loading = View.VISIBLE))
                 val result = withContext(Dispatchers.IO) { moviesRepo.getNowMovies() }
-                stateLiveData.value = MoviesState(
+                sendState(MoviesState(
                     loading = View.GONE,
                     mainView = View.VISIBLE,
                     movies = result.movies?.filterNotNull() ?: emptyList()
-                )
+                ))
             } catch (e: Exception) {
                 e.printStackTrace()
-                stateLiveData.value = MoviesState(errorView = View.VISIBLE)
+                sendState(MoviesState(errorView = View.VISIBLE))
             }
         }
     }
@@ -55,27 +45,17 @@ class MoviesViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.Main) {
             try {
                 val result = withContext(Dispatchers.IO) { moviesRepo.getNowMovies() }
-                stateLiveData.value = MoviesState(
+                sendState(MoviesState(
                     refreshing = false,
                     mainView = View.VISIBLE,
                     movies = result.movies?.filterNotNull() ?: emptyList()
-                )
+                ))
             } catch (e: Exception) {
                 e.printStackTrace()
-                stateLiveData.value = MoviesState(errorView = View.VISIBLE)
+                sendState(MoviesState(errorView = View.VISIBLE))
             }
         }
     }
-
-    override fun onCleared() {
-        super.onCleared()
-        actionLiveData.removeObserver(actionObserver)
-    }
-}
-
-sealed class MoviesAction {
-    object Started : MoviesAction()
-    object Refresh : MoviesAction()
 }
 
 data class MoviesState(
