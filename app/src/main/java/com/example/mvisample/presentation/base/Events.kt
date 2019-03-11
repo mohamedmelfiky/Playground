@@ -1,4 +1,4 @@
-package com.example.mvisample
+package com.example.mvisample.presentation.base
 
 sealed class Event
 data class ShowSnackBar(val text: String) : Event()

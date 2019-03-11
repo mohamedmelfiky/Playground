@@ -1,4 +1,4 @@
-package com.example.mvisample
+package com.example.mvisample.presentation.base
 
 sealed class Action
 object Started : Action()

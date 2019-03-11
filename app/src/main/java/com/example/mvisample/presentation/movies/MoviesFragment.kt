@@ -1,13 +1,18 @@
-package com.example.mvisample
+package com.example.mvisample.presentation.movies
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.example.mvisample.R
+import com.example.mvisample.presentation.base.*
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.movies_fragment.*
+import kotlinx.android.synthetic.main.movies_fragment.view.*
 import kotlinx.android.synthetic.main.view_empty.*
 import kotlinx.android.synthetic.main.view_error.*
 import kotlinx.android.synthetic.main.view_loading.*
@@ -22,10 +27,11 @@ class MoviesFragment : BaseFragment<MoviesState, MoviesViewModel>(
         inflater: LayoutInflater,
         container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.activity_main, container, false)
+        val view = inflater.inflate(R.layout.movies_fragment, container, false)
 
-        moviesRv.adapter = moviesAdapter
-        moviesSrl.setOnRefreshListener(this)
+        view.moviesRv.adapter = moviesAdapter
+        view.moviesRv.setHasFixedSize(true)
+        view.moviesSrl.setOnRefreshListener(this)
 
         return view
     }

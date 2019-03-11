@@ -1,4 +1,4 @@
-package com.example.mvisample
+package com.example.mvisample.presentation.base
 
 import androidx.annotation.MainThread
 import androidx.lifecycle.*

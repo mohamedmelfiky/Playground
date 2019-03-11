@@ -1,4 +1,4 @@
-package com.example.mvisample
+package com.example.mvisample.presentation.base
 
 import android.os.Bundle
 import android.view.View
