@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_nav_host"
-    app:startDestination="@id/moviesFragment">
+    app:startDestination="@id/newMoviesFragment2">
 
     <fragment
         android:id="@+id/moviesFragment"
@@ -24,4 +24,14 @@
             app:argType="integer"
             android:defaultValue="0" />
     </fragment>
+    <fragment
+        android:id="@+id/newMoviesFragment2"
+        android:name="com.example.mvisample.presentation.newmovies.NewMoviesFragment"
+        android:label="new_movies_fragment"
+        tools:layout="@layout/new_movies_fragment" >
+        <action
+            android:id="@+id/action_newMoviesFragment2_to_movieDetailsFragment"
+            app:destination="@id/movieDetailsFragment" />
+    </fragment>
+
 </navigation>
