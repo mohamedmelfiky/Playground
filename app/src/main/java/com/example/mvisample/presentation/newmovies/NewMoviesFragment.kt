@@ -11,9 +11,7 @@ import com.example.mvisample.presentation.base.Event
 import com.example.mvisample.presentation.base.NewBaseFragment
 import com.example.mvisample.presentation.base.ShowSnackBar
 import com.example.mvisample.presentation.base.ShowToast
-import com.example.mvisample.presentation.movies.MoviesAdapter
 import com.google.android.material.snackbar.Snackbar
-import com.jakewharton.rxbinding3.recyclerview.scrollEvents
 import kotlinx.android.synthetic.main.movies_fragment.*
 import kotlinx.android.synthetic.main.movies_fragment.view.*
 import kotlinx.android.synthetic.main.view_empty.*
@@ -35,7 +33,6 @@ class NewMoviesFragment : NewBaseFragment<MoviesAction, MoviesResult, MoviesStat
         view.moviesRv.adapter = moviesAdapter
         view.moviesRv.setHasFixedSize(true)
         view.moviesSrl.setOnRefreshListener(this)
-        view.moviesRv.scrollEvents().subscribe()
 
         return view
     }
