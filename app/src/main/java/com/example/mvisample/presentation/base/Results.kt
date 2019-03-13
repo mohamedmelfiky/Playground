@@ -1,7 +1,5 @@
 package com.example.mvisample.presentation.base
 
-import com.example.domain.entity.Movie
-
 //interface Result
 //
 //sealed class MoviesResult : Result {

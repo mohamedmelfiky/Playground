@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.example.domain.entity.Movie
 import com.example.mvisample.R
+import com.example.mvisample.domain.entity.Movie
 import kotlinx.android.synthetic.main.item_movie.view.*
 
 class MoviesAdapter : ListAdapter<Movie, MovieViewHolder>(

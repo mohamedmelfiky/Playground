@@ -1,6 +1,6 @@
 package com.example.mvisample.data.remote
 
-import com.example.domain.entity.Movie
+import com.example.mvisample.domain.entity.Movie
 import com.squareup.moshi.Json
 
 data class ApiResult(

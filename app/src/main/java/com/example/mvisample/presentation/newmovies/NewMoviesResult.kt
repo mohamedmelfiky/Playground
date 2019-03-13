@@ -1,6 +1,6 @@
 package com.example.mvisample.presentation.newmovies
 
-import com.example.domain.entity.Movie
+import com.example.mvisample.domain.entity.Movie
 import com.example.mvisample.presentation.base.BaseResult
 
 sealed class MoviesResult : BaseResult {

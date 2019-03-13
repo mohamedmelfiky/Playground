@@ -5,8 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.mvisample.R
+import com.example.mvisample.presentation.OnLoadMoreListener
 import com.example.mvisample.presentation.base.Event
 import com.example.mvisample.presentation.base.NewBaseFragment
 import com.example.mvisample.presentation.base.ShowSnackBar
@@ -23,6 +25,7 @@ class NewMoviesFragment : NewBaseFragment<MoviesAction, MoviesResult, MoviesStat
 ), SwipeRefreshLayout.OnRefreshListener {
 
     private val moviesAdapter = NewMoviesAdapter()
+    private val onLoadMoreListener = OnLoadMoreListener { sendAction(LoadMore) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,9 +35,15 @@ class NewMoviesFragment : NewBaseFragment<MoviesAction, MoviesResult, MoviesStat
 
         view.moviesRv.adapter = moviesAdapter
         view.moviesRv.setHasFixedSize(true)
+        view.moviesRv.addOnScrollListener(onLoadMoreListener)
         view.moviesSrl.setOnRefreshListener(this)
 
         return view
+    }
+
+    override fun onDestroyView() {
+        moviesRv.removeOnScrollListener(onLoadMoreListener)
+        super.onDestroyView()
     }
 
     override fun onRefresh() {
@@ -42,13 +51,15 @@ class NewMoviesFragment : NewBaseFragment<MoviesAction, MoviesResult, MoviesStat
     }
 
     override fun renderState(state: MoviesState) {
-        moviesSrl.visibility = state.mainView
+        moviesAdapter.submitList(state.movies)
+        mainViewCl.visibility = state.mainView
         loadingPb.visibility = state.loading
         moviesSrl.isRefreshing = state.refreshing
         emptyView.visibility = state.emptyView
         errorView.visibility = state.errorView
         errorTv.text = state.errorText
-        moviesAdapter.submitList(state.movies)
+        onLoadMoreListener.isLoading = state.isLoadingMore
+        onLoadMoreListener.isLastPage = state.isLastPage
     }
 
     override fun onEvent(event: Event) {

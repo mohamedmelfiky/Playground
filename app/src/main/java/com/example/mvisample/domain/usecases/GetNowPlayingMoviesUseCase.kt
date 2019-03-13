@@ -1,6 +1,6 @@
 package com.example.mvisample.domain.usecases
 
-import com.example.domain.entity.Movie
+import com.example.mvisample.domain.entity.Movie
 import com.example.mvisample.domain.entity.Result
 import com.example.mvisample.domain.repos.IMoviesRepo
 

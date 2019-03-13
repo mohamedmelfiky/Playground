@@ -12,6 +12,7 @@ import com.example.mvisample.domain.entity.Result
 import com.example.mvisample.domain.usecases.GetNowPlayingMoviesUseCase
 import com.example.mvisample.presentation.base.NewBaseViewModel
 import com.example.mvisample.presentation.base.ShowSnackBar
+import com.example.mvisample.presentation.base.ShowToast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -21,6 +22,8 @@ class NewMoviesViewModel : NewBaseViewModel<MoviesAction, MoviesResult, MoviesSt
     // Should be injected with DI
     private val moviesRepo = MoviesRepo.getInstance(getApiService(BASE_URL, getHttpClient()))
     private val getNowPlayingMoviesUseCase = GetNowPlayingMoviesUseCase(moviesRepo)
+
+    private var currentPage = 1
 
     init {
         sendAction(Started)
@@ -46,6 +49,7 @@ class NewMoviesViewModel : NewBaseViewModel<MoviesAction, MoviesResult, MoviesSt
             }
             Refresh -> {
                 viewModelScope.launch(Dispatchers.Main) {
+                    currentPage = 1
                     resultLiveData.value = MoviesResult.RefreshLoading
                     val result = withContext(Dispatchers.IO) { getNowPlayingMoviesUseCase.get() }
                     when (result) {
@@ -59,7 +63,18 @@ class NewMoviesViewModel : NewBaseViewModel<MoviesAction, MoviesResult, MoviesSt
                 }
             }
             LoadMore -> {
-
+                viewModelScope.launch(Dispatchers.Main) {
+                    resultLiveData.value = MoviesResult.LoadMoreLoading
+                    val result = withContext(Dispatchers.IO) { getNowPlayingMoviesUseCase.get(++currentPage) }
+                    when (result) {
+                        is Result.Success -> {
+                            resultLiveData.value = MoviesResult.LoadMoreSuccess(result.data)
+                        }
+                        is Result.Error -> {
+                            resultLiveData.value = MoviesResult.LoadMoreError(result.exception)
+                        }
+                    }
+                }
             }
         }
 
@@ -75,7 +90,7 @@ class NewMoviesViewModel : NewBaseViewModel<MoviesAction, MoviesResult, MoviesSt
                 previousState.copy(refreshing = true)
             }
             MoviesResult.LoadMoreLoading -> {
-                previousState.copy()
+                previousState.copy(isLoadingMore = true)
             }
             is MoviesResult.Success -> {
                 previousState.copy(
@@ -88,13 +103,13 @@ class NewMoviesViewModel : NewBaseViewModel<MoviesAction, MoviesResult, MoviesSt
                 previousState.copy(refreshing = false, movies = result.movies)
             }
             is MoviesResult.LoadMoreSuccess -> {
-                previousState.copy()
+                previousState.copy(isLoadingMore = false, movies = previousState.movies.plus(result.movies))
             }
             is MoviesResult.Error -> {
                 previousState.copy(loading = View.GONE, errorView = View.VISIBLE)
             }
             is MoviesResult.LoadMoreError -> {
-                previousState.copy()
+                previousState.copy(isLoadingMore = false)
             }
             is MoviesResult.RefreshError -> {
                 previousState.copy(refreshing = false)
@@ -106,6 +121,12 @@ class NewMoviesViewModel : NewBaseViewModel<MoviesAction, MoviesResult, MoviesSt
         when(result) {
             is MoviesResult.RefreshError -> {
                 sendSingleEvent(ShowSnackBar("Something went wrong. Please try again."))
+            }
+            is MoviesResult.LoadMoreLoading -> {
+                sendSingleEvent(ShowToast("Loading more data."))
+            }
+            is MoviesResult.LoadMoreError -> {
+                sendSingleEvent(ShowToast("Load more error."))
             }
         }
     }

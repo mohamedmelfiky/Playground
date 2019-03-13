@@ -3,16 +3,15 @@ package com.example.mvisample.presentation.movies
 import android.util.Log
 import android.view.View
 import androidx.lifecycle.viewModelScope
-import com.example.domain.entity.Movie
 import com.example.mvisample.data.remote.BASE_URL
 import com.example.mvisample.data.repos.MoviesRepo
 import com.example.mvisample.data.remote.getApiService
 import com.example.mvisample.data.remote.getHttpClient
+import com.example.mvisample.domain.entity.Movie
 import com.example.mvisample.domain.entity.Result
 import com.example.mvisample.domain.usecases.GetNowPlayingMoviesUseCase
 import com.example.mvisample.presentation.base.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
