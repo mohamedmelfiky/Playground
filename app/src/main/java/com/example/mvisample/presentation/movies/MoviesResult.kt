@@ -1,4 +1,4 @@
-package com.example.mvisample.presentation.newmovies
+package com.example.mvisample.presentation.movies
 
 import com.example.mvisample.domain.entity.Movie
 import com.example.mvisample.presentation.base.BaseResult

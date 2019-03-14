@@ -13,8 +13,8 @@ import com.example.mvisample.R
 import com.example.mvisample.domain.entity.Movie
 import kotlinx.android.synthetic.main.item_movie.view.*
 
-class MoviesAdapter : ListAdapter<Movie, MovieViewHolder>(
-    DiffCallBack()
+class NewMoviesAdapter : ListAdapter<Movie, MovieViewHolder>(
+    DiffCallback
 ) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_movie, parent, false)
@@ -27,16 +27,15 @@ class MoviesAdapter : ListAdapter<Movie, MovieViewHolder>(
 
 }
 
-class DiffCallBack: DiffUtil.ItemCallback<Movie>() {
+object DiffCallback : DiffUtil.ItemCallback<Movie>() {
 
     override fun areItemsTheSame(oldItem: Movie, newItem: Movie): Boolean {
-        return true
+        return oldItem.id == newItem.id
     }
 
     override fun areContentsTheSame(oldItem: Movie, newItem: Movie): Boolean {
         return oldItem == newItem
     }
-
 }
 
 class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -49,7 +48,10 @@ class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         itemView.movieTitleTv.text = movie.title
         itemView.setOnClickListener {
-            val action = MoviesFragmentDirections.actionMoviesFragmentToMovieDetailsFragment(movie.id)
+            val action =
+                MoviesFragmentDirections.actionMoviesFragmentToMovieDetailsFragment(
+                    movie.id
+                )
             itemView.findNavController().navigate(action)
         }
     }

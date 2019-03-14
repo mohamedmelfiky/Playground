@@ -1,10 +1,10 @@
-package com.example.mvisample.presentation.newmovies
+package com.example.mvisample.presentation.movies
 
 import android.view.View
 import com.example.mvisample.domain.entity.Movie
 import com.example.mvisample.presentation.base.BaseState
 
-data class NewMoviesState(
+data class MoviesState(
     val mainView: Int = View.GONE,
     val loading: Int = View.GONE,
     val refreshing: Boolean = false,

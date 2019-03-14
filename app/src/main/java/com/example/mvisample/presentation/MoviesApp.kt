@@ -9,13 +9,10 @@ import com.example.mvisample.data.repos.MoviesRepo
 import com.example.mvisample.domain.repos.IMoviesRepo
 import com.example.mvisample.domain.usecases.GetNowPlayingMoviesUseCase
 import com.example.mvisample.presentation.base.BaseViewModel
-import com.example.mvisample.presentation.base.NewBaseViewModel
+import com.example.mvisample.presentation.movies.MoviesAction
+import com.example.mvisample.presentation.movies.MoviesResult
 import com.example.mvisample.presentation.movies.MoviesState
 import com.example.mvisample.presentation.movies.MoviesViewModel
-import com.example.mvisample.presentation.newmovies.MoviesAction
-import com.example.mvisample.presentation.newmovies.MoviesResult
-import com.example.mvisample.presentation.newmovies.NewMoviesState
-import com.example.mvisample.presentation.newmovies.NewMoviesViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
@@ -28,8 +25,11 @@ val moviesModule = module {
     factory { getApiService(BASE_URL, get()) }
     single<IMoviesRepo> { MoviesRepo(get()) }
     factory { GetNowPlayingMoviesUseCase(get()) }
-    viewModel<BaseViewModel<MoviesState>> { MoviesViewModel(get()) }
-    viewModel<NewBaseViewModel<MoviesAction, MoviesResult, NewMoviesState>> { NewMoviesViewModel(get()) }
+    viewModel<BaseViewModel<MoviesAction, MoviesResult, MoviesState>> {
+        MoviesViewModel(
+            get()
+        )
+    }
 }
 
 class MoviesApp : Application() {
