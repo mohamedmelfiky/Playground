@@ -1,8 +1,7 @@
-package com.example.mvisample.presentation.utils
+package com.example.mvisample.presentation.common
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 
 fun <T, S> LiveData<T>.scan(initialState: S, reducer: (previousState: S, result: T) -> S): LiveData<S> {

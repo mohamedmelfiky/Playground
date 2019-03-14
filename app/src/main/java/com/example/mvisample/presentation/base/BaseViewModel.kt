@@ -5,7 +5,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.mvisample.presentation.common.SingleLiveEvent
-import com.example.mvisample.presentation.utils.*
+import com.example.mvisample.presentation.common.distinctUntilChanged
+import com.example.mvisample.presentation.common.scan
+import com.example.mvisample.presentation.common.sideEffect
+import com.example.mvisample.presentation.common.switchMap
 import timber.log.Timber
 
 abstract class BaseViewModel<A : BaseAction, R : BaseResult, S : BaseState>(initialState: S) : ViewModel() {

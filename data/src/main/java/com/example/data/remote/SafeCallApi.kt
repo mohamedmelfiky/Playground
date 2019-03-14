@@ -1,4 +1,4 @@
-package com.example.mvisample.data.remote
+package com.example.data.remote
 
 import com.example.domain.entity.RequestResult
 import java.lang.Exception
