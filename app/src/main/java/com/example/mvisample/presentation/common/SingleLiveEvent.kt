@@ -1,4 +1,4 @@
-package com.example.mvisample.presentation.base
+package com.example.mvisample.presentation.common
 
 import androidx.annotation.MainThread
 import androidx.annotation.Nullable

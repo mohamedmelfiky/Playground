@@ -1,14 +1,14 @@
 package com.example.mvisample.data.remote
 
-import com.example.mvisample.domain.entity.Result
+import com.example.domain.entity.RequestResult
 import java.lang.Exception
 
 suspend fun <T> safeApiCall(
     call: suspend () -> T
-) : Result<T> {
+) : RequestResult<T> {
     return try {
-        Result.Success(call.invoke())
+        RequestResult.Success(call.invoke())
     } catch (e: Exception) {
-        Result.Error(e)
+        RequestResult.Error(e)
     }
 }

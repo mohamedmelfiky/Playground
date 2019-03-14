@@ -4,6 +4,7 @@ import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.mvisample.presentation.common.SingleLiveEvent
 import com.example.mvisample.presentation.utils.*
 import timber.log.Timber
 
@@ -19,7 +20,7 @@ abstract class BaseViewModel<A : BaseAction, R : BaseResult, S : BaseState>(init
     val stateLiveData = actionLiveData
         .sideEffect { Timber.tag(LOG_TAG).d("Action: $it") }
         .switchMap(::actionToResult)
-        .sideEffect { Timber.tag(LOG_TAG).d("Result: $it") }
+        .sideEffect { Timber.tag(LOG_TAG).d("RequestResult: $it") }
         .sideEffect(::sideEffect)
         .scan(initialState, ::reducer)
         .sideEffect { Timber.tag(LOG_TAG).d("State: $it") }

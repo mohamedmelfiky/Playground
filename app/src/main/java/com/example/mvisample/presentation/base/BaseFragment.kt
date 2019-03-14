@@ -2,8 +2,10 @@ package com.example.mvisample.presentation.base
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import com.google.android.material.snackbar.Snackbar
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 abstract class BaseFragment<A : BaseAction, R : BaseResult, S : BaseState> : Fragment() {
@@ -17,7 +19,19 @@ abstract class BaseFragment<A : BaseAction, R : BaseResult, S : BaseState> : Fra
     }
 
     abstract fun renderState(state: S)
-    abstract fun onEvent(event: Event)
+
+    protected open fun onEvent(event: Event) {
+        when(event) {
+            is ShowSnackBar -> {
+                view?.let {
+                    Snackbar.make(it, event.text, Snackbar.LENGTH_SHORT).show()
+                }
+            }
+            is ShowToast -> {
+                Toast.makeText(requireContext(), event.text, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     fun sendAction(action: A) {
         viewModel.sendAction(action)

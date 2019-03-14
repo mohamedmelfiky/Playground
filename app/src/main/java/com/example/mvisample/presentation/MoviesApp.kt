@@ -1,13 +1,13 @@
 package com.example.mvisample.presentation
 
 import android.app.Application
+import com.example.domain.repos.IMoviesRepo
+import com.example.domain.usecases.GetNowPlayingMoviesUseCase
 import com.example.mvisample.BuildConfig
 import com.example.mvisample.data.remote.BASE_URL
 import com.example.mvisample.data.remote.getApiService
 import com.example.mvisample.data.remote.getHttpClient
 import com.example.mvisample.data.repos.MoviesRepo
-import com.example.mvisample.domain.repos.IMoviesRepo
-import com.example.mvisample.domain.usecases.GetNowPlayingMoviesUseCase
 import com.example.mvisample.presentation.base.BaseViewModel
 import com.example.mvisample.presentation.movies.MoviesAction
 import com.example.mvisample.presentation.movies.MoviesResult

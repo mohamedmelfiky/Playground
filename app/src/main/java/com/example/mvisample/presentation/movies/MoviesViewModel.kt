@@ -4,14 +4,14 @@ import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.mvisample.domain.entity.Result
-import com.example.mvisample.domain.usecases.GetNowPlayingMoviesUseCase
+import com.example.domain.usecases.GetNowPlayingMoviesUseCase
 import com.example.mvisample.presentation.base.BaseViewModel
 import com.example.mvisample.presentation.base.ShowSnackBar
 import com.example.mvisample.presentation.base.ShowToast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.example.domain.entity.RequestResult
 
 class MoviesViewModel(
     private val getNowPlayingMoviesUseCase : GetNowPlayingMoviesUseCase
@@ -34,11 +34,11 @@ class MoviesViewModel(
                     resultLiveData.value = MoviesResult.Loading
                     val result = withContext(Dispatchers.IO) { getNowPlayingMoviesUseCase.get() }
                     when (result) {
-                        is Result.Success -> {
+                        is RequestResult.Success -> {
                             resultLiveData.value =
                                 MoviesResult.Success(result.data)
                         }
-                        is Result.Error -> {
+                        is RequestResult.Error -> {
                             resultLiveData.value =
                                 MoviesResult.Error(result.exception)
                         }
@@ -51,11 +51,11 @@ class MoviesViewModel(
                     resultLiveData.value = MoviesResult.RefreshLoading
                     val result = withContext(Dispatchers.IO) { getNowPlayingMoviesUseCase.get() }
                     when (result) {
-                        is Result.Success -> {
+                        is RequestResult.Success -> {
                             resultLiveData.value =
                                 MoviesResult.RefreshSuccess(result.data)
                         }
-                        is Result.Error -> {
+                        is RequestResult.Error -> {
                             resultLiveData.value =
                                 MoviesResult.RefreshError(result.exception)
                         }
@@ -67,11 +67,11 @@ class MoviesViewModel(
                     resultLiveData.value = MoviesResult.LoadMoreLoading
                     val result = withContext(Dispatchers.IO) { getNowPlayingMoviesUseCase.get(++currentPage) }
                     when (result) {
-                        is Result.Success -> {
+                        is RequestResult.Success -> {
                             resultLiveData.value =
                                 MoviesResult.LoadMoreSuccess(result.data)
                         }
-                        is Result.Error -> {
+                        is RequestResult.Error -> {
                             resultLiveData.value =
                                 MoviesResult.LoadMoreError(result.exception)
                         }
@@ -86,35 +86,35 @@ class MoviesViewModel(
     override fun reducer(previousState: MoviesState, result: MoviesResult): MoviesState {
         return when (result) {
             MoviesResult.Loading -> {
-                previousState.copy(loading = View.VISIBLE)
+                previousState.copy(loadingVisibility = View.VISIBLE)
             }
             MoviesResult.RefreshLoading -> {
-                previousState.copy(refreshing = true)
+                previousState.copy(isRefreshing = true)
             }
             MoviesResult.LoadMoreLoading -> {
                 previousState.copy(isLoadingMore = true)
             }
             is MoviesResult.Success -> {
                 previousState.copy(
-                    loading = View.GONE,
-                    mainView = View.VISIBLE,
+                    loadingVisibility = View.GONE,
+                    mainViewVisibility = View.VISIBLE,
                     movies = result.movies
                 )
             }
             is MoviesResult.RefreshSuccess -> {
-                previousState.copy(refreshing = false, movies = result.movies)
+                previousState.copy(isRefreshing = false, movies = result.movies)
             }
             is MoviesResult.LoadMoreSuccess -> {
                 previousState.copy(isLoadingMore = false, movies = previousState.movies.plus(result.movies))
             }
             is MoviesResult.Error -> {
-                previousState.copy(loading = View.GONE, errorView = View.VISIBLE)
+                previousState.copy(loadingVisibility = View.GONE, errorViewVisibility = View.VISIBLE)
             }
             is MoviesResult.LoadMoreError -> {
                 previousState.copy(isLoadingMore = false)
             }
             is MoviesResult.RefreshError -> {
-                previousState.copy(refreshing = false)
+                previousState.copy(isRefreshing = false)
             }
         }
     }

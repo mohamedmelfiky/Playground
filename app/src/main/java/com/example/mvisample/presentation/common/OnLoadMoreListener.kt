@@ -1,4 +1,4 @@
-package com.example.mvisample.presentation
+package com.example.mvisample.presentation.common
 
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView

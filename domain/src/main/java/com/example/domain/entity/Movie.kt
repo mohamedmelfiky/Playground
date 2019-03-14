@@ -1,4 +1,4 @@
-package com.example.mvisample.domain.entity
+package com.example.domain.entity
 
 data class Movie (
     val id: Int,
