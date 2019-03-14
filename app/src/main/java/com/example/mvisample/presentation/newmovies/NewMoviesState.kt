@@ -4,7 +4,7 @@ import android.view.View
 import com.example.mvisample.domain.entity.Movie
 import com.example.mvisample.presentation.base.BaseState
 
-data class MoviesState(
+data class NewMoviesState(
     val mainView: Int = View.GONE,
     val loading: Int = View.GONE,
     val refreshing: Boolean = false,

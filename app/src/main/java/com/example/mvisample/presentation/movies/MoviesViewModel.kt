@@ -1,12 +1,7 @@
 package com.example.mvisample.presentation.movies
 
-import android.util.Log
 import android.view.View
 import androidx.lifecycle.viewModelScope
-import com.example.mvisample.data.remote.BASE_URL
-import com.example.mvisample.data.repos.MoviesRepo
-import com.example.mvisample.data.remote.getApiService
-import com.example.mvisample.data.remote.getHttpClient
 import com.example.mvisample.domain.entity.Movie
 import com.example.mvisample.domain.entity.Result
 import com.example.mvisample.domain.usecases.GetNowPlayingMoviesUseCase
@@ -14,18 +9,18 @@ import com.example.mvisample.presentation.base.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
-class MoviesViewModel : BaseViewModel<MoviesState>(MoviesState()) {
-
-    private val moviesRepo = MoviesRepo.getInstance(getApiService(BASE_URL, getHttpClient()))
-    private val getNowPlayingMoviesUseCase = GetNowPlayingMoviesUseCase(moviesRepo)
+class MoviesViewModel(
+    private val getNowPlayingMoviesUseCase: GetNowPlayingMoviesUseCase
+) : BaseViewModel<MoviesState>(MoviesState()) {
 
     init {
         sendAction(Started)
     }
 
     override fun actOnAction(action: Action) {
-        Log.i("Actions: ", action.toString())
+        Timber.tag("Actions: ").i(action.toString())
         when (action) {
             Started -> {
                 getMovies()

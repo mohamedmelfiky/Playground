@@ -4,10 +4,6 @@ import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.mvisample.data.remote.BASE_URL
-import com.example.mvisample.data.remote.getApiService
-import com.example.mvisample.data.remote.getHttpClient
-import com.example.mvisample.data.repos.MoviesRepo
 import com.example.mvisample.domain.entity.Result
 import com.example.mvisample.domain.usecases.GetNowPlayingMoviesUseCase
 import com.example.mvisample.presentation.base.NewBaseViewModel
@@ -17,11 +13,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class NewMoviesViewModel : NewBaseViewModel<MoviesAction, MoviesResult, MoviesState>(MoviesState()) {
-
-    // Should be injected with DI
-    private val moviesRepo = MoviesRepo.getInstance(getApiService(BASE_URL, getHttpClient()))
-    private val getNowPlayingMoviesUseCase = GetNowPlayingMoviesUseCase(moviesRepo)
+class NewMoviesViewModel(
+    private val getNowPlayingMoviesUseCase : GetNowPlayingMoviesUseCase
+) : NewBaseViewModel<MoviesAction, MoviesResult, NewMoviesState>(NewMoviesState()) {
 
     private var currentPage = 1
 
@@ -81,7 +75,7 @@ class NewMoviesViewModel : NewBaseViewModel<MoviesAction, MoviesResult, MoviesSt
         return resultLiveData
     }
 
-    override fun reducer(previousState: MoviesState, result: MoviesResult): MoviesState {
+    override fun reducer(previousState: NewMoviesState, result: MoviesResult): NewMoviesState {
         return when (result) {
             MoviesResult.Loading -> {
                 previousState.copy(loading = View.VISIBLE)

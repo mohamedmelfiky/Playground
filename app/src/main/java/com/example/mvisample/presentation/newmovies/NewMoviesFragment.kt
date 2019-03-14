@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.mvisample.R
 import com.example.mvisample.presentation.OnLoadMoreListener
@@ -20,9 +19,7 @@ import kotlinx.android.synthetic.main.view_empty.*
 import kotlinx.android.synthetic.main.view_error.*
 import kotlinx.android.synthetic.main.view_loading.*
 
-class NewMoviesFragment : NewBaseFragment<MoviesAction, MoviesResult, MoviesState, NewMoviesViewModel>(
-    NewMoviesViewModel::class.java
-), SwipeRefreshLayout.OnRefreshListener {
+class NewMoviesFragment : NewBaseFragment<MoviesAction, MoviesResult, NewMoviesState>(), SwipeRefreshLayout.OnRefreshListener {
 
     private val moviesAdapter = NewMoviesAdapter()
     private val onLoadMoreListener = OnLoadMoreListener { sendAction(LoadMore) }
@@ -50,7 +47,7 @@ class NewMoviesFragment : NewBaseFragment<MoviesAction, MoviesResult, MoviesStat
         sendAction(Refresh)
     }
 
-    override fun renderState(state: MoviesState) {
+    override fun renderState(state: NewMoviesState) {
         moviesAdapter.submitList(state.movies)
         mainViewCl.visibility = state.mainView
         loadingPb.visibility = state.loading
