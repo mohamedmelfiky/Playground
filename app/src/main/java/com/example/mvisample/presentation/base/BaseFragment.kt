@@ -6,16 +6,18 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.google.android.material.snackbar.Snackbar
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
-abstract class BaseFragment<A : BaseAction, R : BaseResult, S : BaseState> : Fragment() {
+abstract class BaseFragment<A : BaseAction, R : BaseResult, S : BaseState, VM : BaseViewModel<A, R, S>> : Fragment() {
 
-    protected val viewModel: BaseViewModel<A, R, S> by viewModel()
+    protected abstract  val viewModel: VM
+
+    private val stateObservable = Observer<S> { renderState(it) }
+    private val singleEventObservable = Observer<Event> { onEvent(it) }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.stateLiveData.observe(this, Observer { renderState(it) })
-        viewModel.singleEventLiveData.observe(this, Observer { onEvent(it) })
+        viewModel.stateLiveData.observe(this, stateObservable)
+        viewModel.singleEventLiveData.observe(this, singleEventObservable)
     }
 
     abstract fun renderState(state: S)

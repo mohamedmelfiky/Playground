@@ -5,13 +5,13 @@
     android:id="@+id/rootCl"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.movies.MoviesFragment">
+    tools:context=".presentation.popular.PopularFragment">
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/moviesSrl"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,10 +22,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:padding="2dp"
-            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-            app:spanCount="2"
-            tools:listitem="@layout/item_movie" />
+            app:reverseLayout="false"
+            android:orientation="vertical"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/item_movie_test" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

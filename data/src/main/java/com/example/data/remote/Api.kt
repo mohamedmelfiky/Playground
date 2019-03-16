@@ -11,8 +11,26 @@ const val API_KEY = "8f45f21ebe8ea824b764f080afe29a6a"
 
 interface Api {
 
+    @GET("movie/popular?api_key=$API_KEY")
+    suspend fun getPopular(
+        @Query("language") language: String = "en-US",
+        @Query("page") page: Int
+    ): ApiResult
+
+    @GET("movie/top_rated?api_key=$API_KEY")
+    suspend fun getTopRated(
+        @Query("language") language: String = "en-US",
+        @Query("page") page: Int
+    ): ApiResult
+
     @GET("movie/now_playing?api_key=$API_KEY")
     suspend fun getNowPlaying(
+        @Query("language") language: String = "en-US",
+        @Query("page") page: Int
+    ): ApiResult
+
+    @GET("movie/upcoming?api_key=$API_KEY")
+    suspend fun getUpcoming(
         @Query("language") language: String = "en-US",
         @Query("page") page: Int
     ): ApiResult

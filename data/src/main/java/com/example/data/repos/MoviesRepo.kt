@@ -11,9 +11,27 @@ class MoviesRepo(
     private val api: Api
 ) : IMoviesRepo {
 
+    override suspend fun getPopular(page: Int): RequestResult<List<Movie>> {
+        return safeApiCall {
+            api.getPopular(page = page).movies?.mapNotNull { it?.toMovie() } ?: emptyList()
+        }
+    }
+
+    override suspend fun getTopRated(page: Int): RequestResult<List<Movie>> {
+        return safeApiCall {
+            api.getTopRated(page = page).movies?.mapNotNull { it?.toMovie() } ?: emptyList()
+        }
+    }
+
     override suspend fun getNowPlaying(page: Int): RequestResult<List<Movie>> {
         return safeApiCall {
             api.getNowPlaying(page = page).movies?.mapNotNull { it?.toMovie() } ?: emptyList()
+        }
+    }
+
+    override suspend fun getUpcoming(page: Int): RequestResult<List<Movie>> {
+        return safeApiCall {
+            api.getUpcoming(page = page).movies?.mapNotNull { it?.toMovie() } ?: emptyList()
         }
     }
 

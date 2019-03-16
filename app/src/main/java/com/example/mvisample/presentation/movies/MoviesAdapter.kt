@@ -3,7 +3,6 @@ package com.example.mvisample.presentation.movies
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -13,16 +12,18 @@ import com.example.domain.entity.Movie
 import com.example.mvisample.R
 import kotlinx.android.synthetic.main.item_movie.view.*
 
-class NewMoviesAdapter : ListAdapter<Movie, MovieViewHolder>(
+class MoviesAdapter(
+    private val clickListener: OnMovieClickListener
+) : ListAdapter<Movie, MoviesViewHolder>(
     DiffCallback
 ) {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_movie, parent, false)
-        return MovieViewHolder(view)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MoviesViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_movie_test, parent, false)
+        return MoviesViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
-        holder.bindTo(getItem(position))
+    override fun onBindViewHolder(holder: MoviesViewHolder, position: Int) {
+        holder.bindTo(clickListener, getItem(position))
     }
 
 }
@@ -38,22 +39,20 @@ object DiffCallback : DiffUtil.ItemCallback<Movie>() {
     }
 }
 
-class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+class MoviesViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-    fun bindTo(movie: Movie) {
+    fun bindTo(clickListener: OnMovieClickListener, movie: Movie) {
         Glide.with(itemView.moviePosterImgV)
             .load(movie.poster)
             .transition(DrawableTransitionOptions.withCrossFade())
             .into(itemView.moviePosterImgV)
 
         itemView.movieTitleTv.text = movie.title
-        itemView.setOnClickListener {
-            val action =
-                MoviesFragmentDirections.actionMoviesFragmentToMovieDetailsFragment(
-                    movie.id
-                )
-            itemView.findNavController().navigate(action)
-        }
+        itemView.setOnClickListener { clickListener.onMovieClicked(movie) }
     }
 
+}
+
+interface OnMovieClickListener {
+    fun onMovieClicked(movie: Movie)
 }

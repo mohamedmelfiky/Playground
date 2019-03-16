@@ -1,29 +1,31 @@
 package com.example.mvisample.presentation.movies
 
+import android.os.Parcelable
 import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.domain.usecases.GetNowPlayingMoviesUseCase
+import com.example.domain.entity.Movie
+import com.example.domain.entity.RequestResult
 import com.example.mvisample.presentation.base.BaseViewModel
 import com.example.mvisample.presentation.base.ShowSnackBar
 import com.example.mvisample.presentation.base.ShowToast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.example.domain.entity.RequestResult
 
-class MoviesViewModel(
-    private val getNowPlayingMoviesUseCase : GetNowPlayingMoviesUseCase
-) : BaseViewModel<MoviesAction, MoviesResult, MoviesState>(
+abstract class MoviesViewModel : BaseViewModel<MoviesAction, MoviesResult, MoviesState>(
     MoviesState()
 ) {
 
     private var currentPage = 1
+    var layoutManagerState: Parcelable? = null
 
     init {
         sendAction(Started)
     }
+
+    abstract suspend fun getMovies(page: Int): RequestResult<List<Movie>>
 
     override fun actionToResult(action: MoviesAction): LiveData<MoviesResult> {
         val resultLiveData = MutableLiveData<MoviesResult>()
@@ -32,7 +34,7 @@ class MoviesViewModel(
             Started -> {
                 viewModelScope.launch(Dispatchers.Main) {
                     resultLiveData.value = MoviesResult.Loading
-                    val result = withContext(Dispatchers.IO) { getNowPlayingMoviesUseCase.get() }
+                    val result = withContext(Dispatchers.IO) { getMovies(currentPage) }
                     when (result) {
                         is RequestResult.Success -> {
                             resultLiveData.value =
@@ -49,7 +51,7 @@ class MoviesViewModel(
                 viewModelScope.launch(Dispatchers.Main) {
                     currentPage = 1
                     resultLiveData.value = MoviesResult.RefreshLoading
-                    val result = withContext(Dispatchers.IO) { getNowPlayingMoviesUseCase.get() }
+                    val result = withContext(Dispatchers.IO) { getMovies(currentPage) }
                     when (result) {
                         is RequestResult.Success -> {
                             resultLiveData.value =
@@ -65,7 +67,7 @@ class MoviesViewModel(
             LoadMore -> {
                 viewModelScope.launch(Dispatchers.Main) {
                     resultLiveData.value = MoviesResult.LoadMoreLoading
-                    val result = withContext(Dispatchers.IO) { getNowPlayingMoviesUseCase.get(++currentPage) }
+                    val result = withContext(Dispatchers.IO) { getMovies(++currentPage) }
                     when (result) {
                         is RequestResult.Success -> {
                             resultLiveData.value =
@@ -120,7 +122,7 @@ class MoviesViewModel(
     }
 
     override fun sideEffect(result: MoviesResult) {
-        when(result) {
+        when (result) {
             is MoviesResult.RefreshError -> {
                 sendSingleEvent(ShowSnackBar("Something went wrong. Please try again."))
             }
@@ -132,5 +134,6 @@ class MoviesViewModel(
             }
         }
     }
+
 
 }

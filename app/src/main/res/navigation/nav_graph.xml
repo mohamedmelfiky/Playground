@@ -3,26 +3,56 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_nav_host"
-    app:startDestination="@id/moviesFragment">
+    app:startDestination="@+id/popular_fragment">
 
     <fragment
-        android:id="@+id/moviesFragment"
-        android:name="com.example.mvisample.presentation.movies.MoviesFragment"
-        android:label="movies_fragment"
-        tools:layout="@layout/movies_fragment" >
+        android:id="@+id/popular_fragment"
+        android:name="com.example.mvisample.presentation.popular.PopularFragment"
+        android:label="Popular"
+        tools:layout="@layout/movies_fragment">
         <action
-            android:id="@+id/action_moviesFragment_to_movieDetailsFragment"
-            app:destination="@id/movieDetailsFragment" />
+            android:id="@+id/action_popular_fragment_to_movie_details_fragment"
+            app:destination="@id/movie_details_fragment" />
     </fragment>
     <fragment
-        android:id="@+id/movieDetailsFragment"
+        android:id="@+id/top_rated_fragment"
+        android:name="com.example.mvisample.presentation.top_rated.TopRatedFragment"
+        android:label="Top Rated"
+        tools:layout="@layout/movies_fragment">
+
+        <action
+            android:id="@+id/action_top_rated_fragment_to_movie_details_fragment"
+            app:destination="@id/movie_details_fragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/upcoming_fragment"
+        android:name="com.example.mvisample.presentation.upcoming.UpcomingFragment"
+        android:label="Upcoming"
+        tools:layout="@layout/movies_fragment">
+
+        <action
+            android:id="@+id/action_upcoming_fragment_to_movie_details_fragment"
+            app:destination="@id/movie_details_fragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/now_plaing_fragment"
+        android:name="com.example.mvisample.presentation.now_playing.NowPlayingFragment"
+        android:label="Now playing"
+        tools:layout="@layout/movies_fragment">
+
+        <action
+            android:id="@+id/action_now_plaing_fragment_to_movie_details_fragment"
+            app:destination="@id/movie_details_fragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/movie_details_fragment"
         android:name="com.example.mvisample.presentation.details.MovieDetailsFragment"
-        android:label="movie_details_fragment"
-        tools:layout="@layout/movie_details_fragment" >
+        android:label="Details"
+        tools:layout="@layout/movie_details_fragment">
         <argument
             android:name="movieId"
-            app:argType="integer"
-            android:defaultValue="0" />
+            android:defaultValue="0"
+            app:argType="integer" />
     </fragment>
 
 </navigation>

@@ -14,11 +14,13 @@ import kotlinx.android.synthetic.main.view_empty.*
 import kotlinx.android.synthetic.main.view_error.*
 import kotlinx.android.synthetic.main.view_loading.*
 
-class MoviesFragment : BaseFragment<MoviesAction, MoviesResult, MoviesState>(), SwipeRefreshLayout.OnRefreshListener {
+abstract class MoviesFragment<VM: MoviesViewModel> :
+    BaseFragment<MoviesAction, MoviesResult, MoviesState, VM>(),
+    SwipeRefreshLayout.OnRefreshListener,
+    OnMovieClickListener {
 
-    private val moviesAdapter = NewMoviesAdapter()
-    private val onLoadMoreListener =
-        OnLoadMoreListener { sendAction(LoadMore) }
+    private val adapter by lazy { MoviesAdapter(this) }
+    private val onLoadMoreListener = OnLoadMoreListener { sendAction(LoadMore) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -26,16 +28,22 @@ class MoviesFragment : BaseFragment<MoviesAction, MoviesResult, MoviesState>(), 
     ): View? {
         val view = inflater.inflate(R.layout.movies_fragment, container, false)
 
-        view.moviesRv.adapter = moviesAdapter
+        view.moviesRv.adapter = adapter
         view.moviesRv.setHasFixedSize(true)
         view.moviesRv.addOnScrollListener(onLoadMoreListener)
         view.moviesSrl.setOnRefreshListener(this)
+        // We save the state of the layoutManger because onSaveInstance does not called when
+        // Changing the fragment called only when rotation changed
+        if (savedInstanceState == null) {
+            view.moviesRv.layoutManager?.onRestoreInstanceState(viewModel.layoutManagerState)
+        }
 
         return view
     }
 
     override fun onDestroyView() {
         moviesRv.removeOnScrollListener(onLoadMoreListener)
+        viewModel.layoutManagerState = moviesRv.layoutManager?.onSaveInstanceState()
         super.onDestroyView()
     }
 
@@ -44,7 +52,7 @@ class MoviesFragment : BaseFragment<MoviesAction, MoviesResult, MoviesState>(), 
     }
 
     override fun renderState(state: MoviesState) {
-        moviesAdapter.submitList(state.movies)
+        adapter.submitList(state.movies)
         moviesSrl.visibility = state.mainViewVisibility
         loadingPb.visibility = state.loadingVisibility
         moviesSrl.isRefreshing = state.isRefreshing
