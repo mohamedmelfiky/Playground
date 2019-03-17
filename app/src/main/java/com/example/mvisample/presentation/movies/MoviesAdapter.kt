@@ -18,7 +18,7 @@ class MoviesAdapter(
     DiffCallback
 ) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MoviesViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_movie_test, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_movie, parent, false)
         return MoviesViewHolder(view)
     }
 
