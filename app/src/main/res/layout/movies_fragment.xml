@@ -24,8 +24,9 @@
             android:clipToPadding="false"
             app:reverseLayout="false"
             android:orientation="vertical"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/item_movie_test" />
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="2"
+            tools:listitem="@layout/item_movie" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
