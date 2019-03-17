@@ -1,4 +1,4 @@
-package com.example.data.remote
+package com.example.data.entity
 
 import com.example.domain.entity.Movie
 import com.squareup.moshi.Json

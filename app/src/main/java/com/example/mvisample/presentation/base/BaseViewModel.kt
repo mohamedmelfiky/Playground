@@ -4,16 +4,13 @@ import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.mvisample.presentation.common.SingleLiveEvent
-import com.example.mvisample.presentation.common.distinctUntilChanged
-import com.example.mvisample.presentation.common.scan
-import com.example.mvisample.presentation.common.sideEffect
-import com.example.mvisample.presentation.common.switchMap
+import com.example.mvisample.presentation.common.*
 import timber.log.Timber
+
+private const val LOG_TAG = "MviState"
 
 abstract class BaseViewModel<A : BaseAction, R : BaseResult, S : BaseState>(initialState: S) : ViewModel() {
 
-    private val LOG_TAG = "MviState"
     private val actionLiveData = MutableLiveData<A>()
 
     private val singleEvent = SingleLiveEvent<Event>()

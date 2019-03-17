@@ -14,7 +14,7 @@ import kotlinx.android.synthetic.main.view_empty.*
 import kotlinx.android.synthetic.main.view_error.*
 import kotlinx.android.synthetic.main.view_loading.*
 
-abstract class MoviesFragment<VM: MoviesViewModel> :
+abstract class MoviesFragment<VM : MoviesViewModel> :
     BaseFragment<MoviesAction, MoviesResult, MoviesState, VM>(),
     SwipeRefreshLayout.OnRefreshListener,
     OnMovieClickListener {

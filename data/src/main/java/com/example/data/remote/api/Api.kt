@@ -1,5 +1,6 @@
-package com.example.data.remote
+package com.example.data.remote.api
 
+import com.example.data.entity.ApiResult
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
