@@ -16,8 +16,9 @@ abstract class MoviesViewModel : BaseViewModel<MoviesAction, MoviesResult, Movie
 ) {
 
     private var actionJob: Job? = null
-    private var currentPage = 1
+    private var stateJob: Job? = null
     var layoutManagerState: Parcelable? = null
+    private var currentPage = 1
 
     init {
         sendAction(Started)
@@ -100,50 +101,62 @@ abstract class MoviesViewModel : BaseViewModel<MoviesAction, MoviesResult, Movie
         result: MoviesResult,
         stateLiveData: MutableLiveData<MoviesState>
     ) {
-        when (result) {
-            MoviesResult.Loading -> {
-                stateLiveData.value = previousState.copy(loadingVisibility = View.VISIBLE)
-            }
-            is MoviesResult.Success -> {
-                stateLiveData.value = previousState.copy(
-                    loadingVisibility = View.GONE,
-                    mainViewVisibility = View.VISIBLE,
-                    movies = result.movies
-                )
-            }
-            is MoviesResult.Error -> {
-                stateLiveData.value =
-                    previousState.copy(loadingVisibility = View.GONE, errorViewVisibility = View.VISIBLE)
-            }
-            MoviesResult.Cancelled -> {
-                stateLiveData.value = previousState.copy(loadingVisibility = View.GONE)
-            }
-            MoviesResult.RefreshLoading -> {
-                stateLiveData.value = previousState.copy(isRefreshing = true)
-            }
-            is MoviesResult.RefreshSuccess -> {
-                stateLiveData.value = previousState.copy(isRefreshing = false, movies = result.movies)
-            }
-            is MoviesResult.RefreshError -> {
-                stateLiveData.value = previousState.copy(isRefreshing = false)
-            }
-            MoviesResult.RefreshCancelled -> {
-                stateLiveData.value = previousState.copy(isRefreshing = false)
-            }
-            MoviesResult.LoadMoreLoading -> {
-                stateLiveData.value = previousState.copy(isLoadingMore = true, movies = previousState.movies)
-            }
-            is MoviesResult.LoadMoreSuccess -> {
-                stateLiveData.value =
-                    previousState.copy(isLoadingMore = false, movies = previousState.movies.plus(result.movies))
-            }
-            is MoviesResult.LoadMoreError -> {
-                stateLiveData.value = previousState.copy(isLoadingMore = false, movies = previousState.movies)
-            }
-            MoviesResult.LoadMoreCancelled -> {
-                stateLiveData.value = previousState.copy(isLoadingMore = false, movies = previousState.movies)
-            }
-        }.exhaustive
+        if (stateJob?.isActive == true) {
+            stateJob?.cancel()
+        }
+
+        stateJob = viewModelScope.launch {
+            when (result) {
+                MoviesResult.Loading -> {
+                    stateLiveData.value = previousState.copy(loadingVisibility = View.VISIBLE)
+                }
+                is MoviesResult.Success -> {
+                    stateLiveData.value = previousState.copy(
+                        loadingVisibility = View.GONE,
+                        mainViewVisibility = View.VISIBLE,
+                        movies = result.movies
+                    )
+                }
+                is MoviesResult.Error -> {
+                    stateLiveData.value =
+                        previousState.copy(loadingVisibility = View.GONE, errorViewVisibility = View.VISIBLE)
+                }
+                MoviesResult.Cancelled -> {
+                    stateLiveData.value = previousState.copy(loadingVisibility = View.GONE)
+                }
+                MoviesResult.RefreshLoading -> {
+                    stateLiveData.value = previousState.copy(isRefreshing = true)
+                }
+                is MoviesResult.RefreshSuccess -> {
+                    stateLiveData.value = previousState.copy(isRefreshing = false, movies = result.movies)
+                }
+                is MoviesResult.RefreshError -> {
+                    stateLiveData.value = previousState.copy(isRefreshing = false)
+                }
+                MoviesResult.RefreshCancelled -> {
+                    stateLiveData.value = previousState.copy(isRefreshing = false)
+                }
+                MoviesResult.LoadMoreLoading -> {
+                    stateLiveData.value = previousState.copy(movies = previousState.movies)
+                }
+                is MoviesResult.LoadMoreSuccess -> {
+                    try {
+                        val movies = withContext(Dispatchers.Default) {
+                            previousState.movies.plus(result.movies)
+                        }
+                        stateLiveData.value = previousState.copy(movies = movies)
+                    } catch (e: CancellationException) {
+                        stateLiveData.value = previousState.copy(movies = previousState.movies)
+                    }
+                }
+                is MoviesResult.LoadMoreError -> {
+                    stateLiveData.value = previousState.copy(movies = previousState.movies)
+                }
+                MoviesResult.LoadMoreCancelled -> {
+                    stateLiveData.value = previousState.copy(movies = previousState.movies)
+                }
+            }.exhaustive
+        }
     }
 
     override fun sideEffect(result: MoviesResult, eventLiveData: MutableLiveData<Event>) {

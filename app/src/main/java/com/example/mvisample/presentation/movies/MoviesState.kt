@@ -11,7 +11,6 @@ data class MoviesState(
     val emptyViewVisibility: Int = View.GONE,
     val errorViewVisibility: Int = View.GONE,
     val errorText: String = "",
-    val isLoadingMore: Boolean = false,
     val isLastPage: Boolean = false,
     val movies: List<Movie> = emptyList()
 ) : BaseState

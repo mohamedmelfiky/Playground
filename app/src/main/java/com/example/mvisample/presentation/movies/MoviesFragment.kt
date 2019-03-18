@@ -4,15 +4,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.mvisample.R
 import com.example.mvisample.presentation.common.OnLoadMoreListener
 import com.example.mvisample.presentation.base.BaseFragment
+import com.example.mvisample.presentation.common.AdapterOnInsertedListener
 import kotlinx.android.synthetic.main.movies_fragment.*
 import kotlinx.android.synthetic.main.movies_fragment.view.*
 import kotlinx.android.synthetic.main.view_empty.*
 import kotlinx.android.synthetic.main.view_error.*
 import kotlinx.android.synthetic.main.view_loading.*
+import timber.log.Timber
 
 abstract class MoviesFragment<VM : MoviesViewModel> :
     BaseFragment<MoviesAction, MoviesResult, MoviesState, VM>(),
@@ -21,6 +24,7 @@ abstract class MoviesFragment<VM : MoviesViewModel> :
 
     private val adapter by lazy { MoviesAdapter(this) }
     private val onLoadMoreListener = OnLoadMoreListener { sendAction(LoadMore) }
+    private val adapterOnInsertedListener = AdapterOnInsertedListener(onLoadMoreListener)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -28,6 +32,8 @@ abstract class MoviesFragment<VM : MoviesViewModel> :
     ): View? {
         val view = inflater.inflate(R.layout.movies_fragment, container, false)
 
+
+        adapter.registerAdapterDataObserver(adapterOnInsertedListener)
         view.moviesRv.adapter = adapter
         view.moviesRv.setHasFixedSize(true)
         view.moviesRv.addOnScrollListener(onLoadMoreListener)
@@ -42,6 +48,7 @@ abstract class MoviesFragment<VM : MoviesViewModel> :
     }
 
     override fun onDestroyView() {
+        adapter.unregisterAdapterDataObserver(adapterOnInsertedListener)
         moviesRv.removeOnScrollListener(onLoadMoreListener)
         viewModel.layoutManagerState = moviesRv.layoutManager?.onSaveInstanceState()
         super.onDestroyView()
@@ -59,7 +66,6 @@ abstract class MoviesFragment<VM : MoviesViewModel> :
         emptyView.visibility = state.emptyViewVisibility
         errorView.visibility = state.errorViewVisibility
         errorTv.text = state.errorText
-        onLoadMoreListener.isLoading = state.isLoadingMore
         onLoadMoreListener.isLastPage = state.isLastPage
     }
 
