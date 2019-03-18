@@ -42,7 +42,7 @@
         android:textAppearance="?attr/textAppearanceHeadline6"
         app:layout_constrainedWidth="true"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/movieDetailsTv"
+        app:layout_constraintBottom_toTopOf="@+id/movieDetailsTv"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toEndOf="@id/moviePosterImgV"

@@ -2,6 +2,7 @@ package com.example.mvisample.presentation.common
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 
 fun <T, S> LiveData<T>.scan(initialState: S, reducer: (previousState: S, result: T) -> S): LiveData<S> {
@@ -34,7 +35,16 @@ fun <T> LiveData<T>.distinctUntilChanged(): LiveData<T> {
 }
 
 fun <T> LiveData<T>.sideEffect(function: (T) -> Unit): LiveData<T> {
-    val mutableLiveData:MediatorLiveData<T> = MediatorLiveData()
+    val mutableLiveData: MediatorLiveData<T> = MediatorLiveData()
+    mutableLiveData.addSource(this) { value ->
+        value?.let { function(it) }
+        mutableLiveData.value = value
+    }
+    return mutableLiveData
+}
+
+fun <T> MutableLiveData<T>.sideEffect(function: (T) -> Unit): MutableLiveData<T> {
+    val mutableLiveData: MediatorLiveData<T> = MediatorLiveData()
     mutableLiveData.addSource(this) { value ->
         value?.let { function(it) }
         mutableLiveData.value = value
