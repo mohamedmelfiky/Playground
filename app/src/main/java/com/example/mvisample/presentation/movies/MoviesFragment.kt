@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.mvisample.R
 import com.example.mvisample.presentation.common.OnLoadMoreListener
@@ -32,7 +31,6 @@ abstract class MoviesFragment<VM : MoviesViewModel> :
     ): View? {
         val view = inflater.inflate(R.layout.movies_fragment, container, false)
 
-
         adapter.registerAdapterDataObserver(adapterOnInsertedListener)
         view.moviesRv.adapter = adapter
         view.moviesRv.setHasFixedSize(true)
@@ -45,6 +43,11 @@ abstract class MoviesFragment<VM : MoviesViewModel> :
         }
 
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        sendAction(Started)
     }
 
     override fun onDestroyView() {
