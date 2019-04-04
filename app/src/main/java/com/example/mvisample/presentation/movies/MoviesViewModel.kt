@@ -5,6 +5,7 @@ import android.view.View
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.domain.entity.Movie
+import com.example.domain.entity.MovieLoading
 import com.example.domain.entity.RequestResult
 import com.example.mvisample.presentation.base.*
 import kotlinx.coroutines.*
@@ -14,6 +15,8 @@ abstract class MoviesViewModel : BaseViewModel<MoviesAction, MoviesResult, Movie
 ) {
 
     private var actionJob: Job? = null
+    private var refreshJob: Job? = null
+    private var loadMoreJob: Job? = null
     var layoutManagerState: Parcelable? = null
     private var currentPage = 1
     private var isFirstTime = false
@@ -29,11 +32,7 @@ abstract class MoviesViewModel : BaseViewModel<MoviesAction, MoviesResult, Movie
             }
         }
 
-        if (actionJob?.isActive == true) {
-            actionJob?.cancel()
-        }
-
-        actionJob = when (action) {
+        when (action) {
             Started -> {
                 startedAction(resultLiveData)
             }
@@ -46,65 +45,91 @@ abstract class MoviesViewModel : BaseViewModel<MoviesAction, MoviesResult, Movie
         }
     }
 
-    private fun startedAction(resultLiveData: MutableLiveData<MoviesResult>) = viewModelScope.launch {
-        safeAction(
-            action = {
-                resultLiveData.value = Loading
-                val result = withContext(Dispatchers.IO) { getMovies(currentPage) }
-                when (result) {
-                    is RequestResult.Success -> {
-                        resultLiveData.value = Success(result.data)
+    private fun startedAction(resultLiveData: MutableLiveData<MoviesResult>) {
+        if (actionJob?.isActive == true) {
+            return
+        }
+
+        actionJob = viewModelScope.launch {
+            safeAction(
+                action = {
+                    resultLiveData.value = Loading
+                    val result = withContext(Dispatchers.IO) { getMovies(currentPage) }
+                    when (result) {
+                        is RequestResult.Success -> {
+                            resultLiveData.value = Success(result.data)
+                        }
+                        is RequestResult.Error -> {
+                            resultLiveData.value = Error(result.exception)
+                        }
                     }
-                    is RequestResult.Error -> {
-                        resultLiveData.value = Error(result.exception)
-                    }
+                },
+                onCancel = {
+                    resultLiveData.value = Cancelled
                 }
-            },
-            onCancel = {
-                resultLiveData.value = Cancelled
-            }
-        )
+            )
+        }
     }
 
-    private fun refreshAction(resultLiveData: MutableLiveData<MoviesResult>) = viewModelScope.launch {
-        safeAction(
-            action = {
-                currentPage = 1
-                resultLiveData.value = RefreshLoading
-                val result = withContext(Dispatchers.IO) { getMovies(currentPage) }
-                when (result) {
-                    is RequestResult.Success -> {
-                        resultLiveData.value = RefreshSuccess(result.data)
+    private fun refreshAction(resultLiveData: MutableLiveData<MoviesResult>) {
+        if (refreshJob?.isActive == true) {
+            return
+        }
+
+        if (loadMoreJob?.isActive == true) {
+            loadMoreJob?.cancel()
+        }
+
+        refreshJob = viewModelScope.launch {
+            safeAction(
+                action = {
+                    currentPage = 1
+                    resultLiveData.value = RefreshLoading
+                    val result = withContext(Dispatchers.IO) { getMovies(currentPage) }
+                    when (result) {
+                        is RequestResult.Success -> {
+                            resultLiveData.value = RefreshSuccess(result.data)
+                        }
+                        is RequestResult.Error -> {
+                            resultLiveData.value = RefreshError(result.exception)
+                        }
                     }
-                    is RequestResult.Error -> {
-                        resultLiveData.value = RefreshError(result.exception)
-                    }
+                },
+                onCancel = {
+                    resultLiveData.value = RefreshCancelled
                 }
-            },
-            onCancel = {
-                resultLiveData.value = RefreshCancelled
-            }
-        )
+            )
+        }
     }
 
-    private fun loadMoreAction(page: Int, resultLiveData: MutableLiveData<MoviesResult>) = viewModelScope.launch {
-        safeAction(
-            action = {
-                resultLiveData.value = LoadMoreLoading
-                val result = withContext(Dispatchers.IO) { getMovies(page) }
-                when (result) {
-                    is RequestResult.Success -> {
-                        resultLiveData.value = LoadMoreSuccess(result.data)
+    private fun loadMoreAction(page: Int, resultLiveData: MutableLiveData<MoviesResult>) {
+        if (loadMoreJob?.isActive == true) {
+            return
+        }
+
+        if (refreshJob?.isActive == true) {
+            refreshJob?.cancel()
+        }
+
+        loadMoreJob = viewModelScope.launch {
+            safeAction(
+                action = {
+                    resultLiveData.value = LoadMoreLoading
+                    val result = withContext(Dispatchers.IO) { getMovies(page) }
+                    when (result) {
+                        is RequestResult.Success -> {
+                            resultLiveData.value = LoadMoreSuccess(result.data)
+                        }
+                        is RequestResult.Error -> {
+                            resultLiveData.value = LoadMoreError(result.exception)
+                        }
                     }
-                    is RequestResult.Error -> {
-                        resultLiveData.value = LoadMoreError(result.exception)
-                    }
+                },
+                onCancel = {
+                    resultLiveData.value = LoadMoreCancelled
                 }
-            },
-            onCancel = {
-                resultLiveData.value = LoadMoreCancelled
-            }
-        )
+            )
+        }
     }
 
     override fun reducer(
@@ -141,17 +166,17 @@ abstract class MoviesViewModel : BaseViewModel<MoviesAction, MoviesResult, Movie
                 previousState.copy(isRefreshing = false)
             }
             LoadMoreLoading -> {
-                previousState.copy(movies = previousState.movies)
+                previousState.copy(isLoadingMore = true, movies = previousState.movies.plus(MovieLoading))
             }
             is LoadMoreSuccess -> {
-                val movies = previousState.movies.plus(result.movies)
-                previousState.copy(movies = movies)
+                val movies = previousState.movies.dropLast(1).plus(result.movies)
+                previousState.copy(isLoadingMore = false, movies = movies)
             }
             is LoadMoreError -> {
-                previousState.copy(movies = previousState.movies)
+                previousState.copy(isLoadingMore = false, movies = previousState.movies.dropLast(1))
             }
             LoadMoreCancelled -> {
-                previousState.copy()
+                previousState.copy(isRefreshing = true, isLoadingMore = false, movies = previousState.movies.dropLast(1))
             }
         }
     }

@@ -4,6 +4,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 class OnLoadMoreListener(
+    private val threshold: Int = 0,
     private val onLoadMore: () -> Unit
 ): RecyclerView.OnScrollListener() {
 
@@ -19,7 +20,7 @@ class OnLoadMoreListener(
             val firstVisibleItemPosition = (layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
 
             if (!isLoading && !isLastPage) {
-                if (visibleItemCount + firstVisibleItemPosition >= totalItemCount && firstVisibleItemPosition >= 0) {
+                if (visibleItemCount + firstVisibleItemPosition >= (totalItemCount - threshold) && firstVisibleItemPosition >= 0) {
                     isLoading = true
                     onLoadMore()
                 }

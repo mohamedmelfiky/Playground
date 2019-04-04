@@ -10,7 +10,9 @@ class AdapterOnInsertedListener(private val loadMoreListener: OnLoadMoreListener
 
     override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
         super.onItemRangeInserted(positionStart, itemCount)
-        loadMoreListener.isLoading = false
+        if (itemCount > 1) {
+            loadMoreListener.isLoading = false
+        }
     }
 
 }

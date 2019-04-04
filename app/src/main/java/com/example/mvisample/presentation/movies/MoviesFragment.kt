@@ -22,8 +22,7 @@ abstract class MoviesFragment<VM : MoviesViewModel> :
     OnMovieClickListener {
 
     private val adapter by lazy { MoviesAdapter(this) }
-    private val onLoadMoreListener = OnLoadMoreListener { sendAction(LoadMore) }
-    private val adapterOnInsertedListener = AdapterOnInsertedListener(onLoadMoreListener)
+    private val onLoadMoreListener = OnLoadMoreListener(5) { sendAction(LoadMore) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,7 +30,6 @@ abstract class MoviesFragment<VM : MoviesViewModel> :
     ): View? {
         val view = inflater.inflate(R.layout.movies_fragment, container, false)
 
-        adapter.registerAdapterDataObserver(adapterOnInsertedListener)
         view.moviesRv.adapter = adapter
         view.moviesRv.setHasFixedSize(true)
         view.moviesRv.addOnScrollListener(onLoadMoreListener)
@@ -51,7 +49,6 @@ abstract class MoviesFragment<VM : MoviesViewModel> :
     }
 
     override fun onDestroyView() {
-        adapter.unregisterAdapterDataObserver(adapterOnInsertedListener)
         moviesRv.removeOnScrollListener(onLoadMoreListener)
         viewModel.layoutManagerState = moviesRv.layoutManager?.onSaveInstanceState()
         super.onDestroyView()
@@ -69,6 +66,7 @@ abstract class MoviesFragment<VM : MoviesViewModel> :
         emptyView.visibility = state.emptyViewVisibility
         errorView.visibility = state.errorViewVisibility
         errorTv.text = state.errorText
+        onLoadMoreListener.isLoading = state.isLoadingMore
         onLoadMoreListener.isLastPage = state.isLastPage
     }
 
