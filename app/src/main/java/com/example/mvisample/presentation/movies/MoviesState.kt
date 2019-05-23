@@ -1,9 +1,8 @@
 package com.example.mvisample.presentation.movies
 
 import android.view.View
-import com.example.domain.entity.Movie
 import com.example.domain.entity.MovieItem
-import com.example.mvisample.presentation.base.BaseState
+import com.example.mvisample.mvibase.BaseState
 
 data class MoviesState(
     val mainViewVisibility: Int = View.GONE,

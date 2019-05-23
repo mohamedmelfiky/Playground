@@ -6,9 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.mvisample.R
+import com.example.mvisample.mvibase.BaseFragment
+import com.example.mvisample.mvibase.BaseViewModel
 import com.example.mvisample.presentation.common.OnLoadMoreListener
-import com.example.mvisample.presentation.base.BaseFragment
-import com.example.mvisample.presentation.common.AdapterOnInsertedListener
 import kotlinx.android.synthetic.main.movies_fragment.*
 import kotlinx.android.synthetic.main.movies_fragment.view.*
 import kotlinx.android.synthetic.main.view_empty.*
@@ -16,11 +16,12 @@ import kotlinx.android.synthetic.main.view_error.*
 import kotlinx.android.synthetic.main.view_loading.*
 import timber.log.Timber
 
-abstract class MoviesFragment<VM : MoviesViewModel> :
-    BaseFragment<MoviesAction, MoviesResult, MoviesState, VM>(),
+abstract class MoviesFragment :
+    BaseFragment<MoviesAction, MoviesResult, MoviesState>(),
     SwipeRefreshLayout.OnRefreshListener,
     OnMovieClickListener {
 
+    abstract override val viewModel: MoviesViewModel
     private val adapter by lazy { MoviesAdapter(this) }
     private val onLoadMoreListener = OnLoadMoreListener(5) { sendAction(LoadMore) }
 

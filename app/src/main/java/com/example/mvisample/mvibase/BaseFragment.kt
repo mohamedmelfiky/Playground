@@ -1,4 +1,4 @@
-package com.example.mvisample.presentation.base
+package com.example.mvisample.mvibase
 
 import android.os.Bundle
 import android.view.View
@@ -7,23 +7,28 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.google.android.material.snackbar.Snackbar
 
-abstract class BaseFragment<A : BaseAction, R : BaseResult, S : BaseState, VM : BaseViewModel<A, R, S>> : Fragment() {
+abstract class BaseFragment<A : BaseAction, R : BaseResult, S : BaseState> : Fragment() {
 
-    protected abstract  val viewModel: VM
-
-    private val stateObservable = Observer<S> { renderState(it) }
-    private val singleEventObservable = Observer<Event> { onEvent(it) }
+    protected abstract val viewModel: BaseViewModel<A, R, S>
+    protected lateinit var state: S
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.stateLiveData.observe(this, stateObservable)
-        viewModel.singleEventLiveData.observe(this, singleEventObservable)
+        viewModel.resources = resources
+        viewModel.observe(
+            this,
+            Observer {
+                state = it
+                renderState(it)
+            }
+            , Observer { onEvent(it) }
+        )
     }
 
     abstract fun renderState(state: S)
 
-    protected open fun onEvent(event: Event) {
-        when(event) {
+    protected open fun onEvent(event: SingleEvent) {
+        when (event) {
             is ShowSnackBar -> {
                 view?.let {
                     Snackbar.make(it, event.text, Snackbar.LENGTH_SHORT).show()

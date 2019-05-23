@@ -7,7 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.domain.entity.Movie
 import com.example.domain.entity.MovieLoading
 import com.example.domain.entity.RequestResult
-import com.example.mvisample.presentation.base.*
+import com.example.mvisample.mvibase.BaseViewModel
+import com.example.mvisample.mvibase.ShowSnackBar
+import com.example.mvisample.mvibase.ShowToast
 import kotlinx.coroutines.*
 
 abstract class MoviesViewModel : BaseViewModel<MoviesAction, MoviesResult, MoviesState>(
@@ -23,7 +25,7 @@ abstract class MoviesViewModel : BaseViewModel<MoviesAction, MoviesResult, Movie
 
     abstract suspend fun getMovies(page: Int): RequestResult<List<Movie>>
 
-    override fun actionToResult(action: MoviesAction, resultLiveData: MutableLiveData<MoviesResult>) {
+    override suspend fun actionToResult(action: MoviesAction) {
         if (action is Started) {
             if (isFirstTime) {
                 return
@@ -34,18 +36,18 @@ abstract class MoviesViewModel : BaseViewModel<MoviesAction, MoviesResult, Movie
 
         when (action) {
             Started -> {
-                startedAction(resultLiveData)
+                startedAction()
             }
             Refresh -> {
-                refreshAction(resultLiveData)
+                refreshAction()
             }
             LoadMore -> {
-                loadMoreAction(++currentPage, resultLiveData)
+                loadMoreAction(++currentPage)
             }
         }
     }
 
-    private fun startedAction(resultLiveData: MutableLiveData<MoviesResult>) {
+    private fun startedAction() {
         if (actionJob?.isActive == true) {
             return
         }
@@ -53,25 +55,25 @@ abstract class MoviesViewModel : BaseViewModel<MoviesAction, MoviesResult, Movie
         actionJob = viewModelScope.launch {
             safeAction(
                 action = {
-                    resultLiveData.value = Loading
+                    setResult(Loading)
                     val result = withContext(Dispatchers.IO) { getMovies(currentPage) }
                     when (result) {
                         is RequestResult.Success -> {
-                            resultLiveData.value = Success(result.data)
+                            setResult(Success(result.data))
                         }
                         is RequestResult.Error -> {
-                            resultLiveData.value = Error(result.exception)
+                            setResult(Error(result.exception))
                         }
                     }
                 },
                 onCancel = {
-                    resultLiveData.value = Cancelled
+                    setResult(Cancelled)
                 }
             )
         }
     }
 
-    private fun refreshAction(resultLiveData: MutableLiveData<MoviesResult>) {
+    private fun refreshAction() {
         if (refreshJob?.isActive == true) {
             return
         }
@@ -84,25 +86,25 @@ abstract class MoviesViewModel : BaseViewModel<MoviesAction, MoviesResult, Movie
             safeAction(
                 action = {
                     currentPage = 1
-                    resultLiveData.value = RefreshLoading
+                    setResult(RefreshLoading)
                     val result = withContext(Dispatchers.IO) { getMovies(currentPage) }
                     when (result) {
                         is RequestResult.Success -> {
-                            resultLiveData.value = RefreshSuccess(result.data)
+                            setResult(RefreshSuccess(result.data))
                         }
                         is RequestResult.Error -> {
-                            resultLiveData.value = RefreshError(result.exception)
+                            setResult(RefreshError(result.exception))
                         }
                     }
                 },
                 onCancel = {
-                    resultLiveData.value = RefreshCancelled
+                    setResult(RefreshCancelled)
                 }
             )
         }
     }
 
-    private fun loadMoreAction(page: Int, resultLiveData: MutableLiveData<MoviesResult>) {
+    private fun loadMoreAction(page: Int) {
         if (loadMoreJob?.isActive == true) {
             return
         }
@@ -114,19 +116,19 @@ abstract class MoviesViewModel : BaseViewModel<MoviesAction, MoviesResult, Movie
         loadMoreJob = viewModelScope.launch {
             safeAction(
                 action = {
-                    resultLiveData.value = LoadMoreLoading
+                    setResult(LoadMoreLoading)
                     val result = withContext(Dispatchers.IO) { getMovies(page) }
                     when (result) {
                         is RequestResult.Success -> {
-                            resultLiveData.value = LoadMoreSuccess(result.data)
+                            setResult(LoadMoreSuccess(result.data))
                         }
                         is RequestResult.Error -> {
-                            resultLiveData.value = LoadMoreError(result.exception)
+                            setResult(LoadMoreError(result.exception))
                         }
                     }
                 },
                 onCancel = {
-                    resultLiveData.value = LoadMoreCancelled
+                    setResult(LoadMoreCancelled)
                 }
             )
         }
@@ -181,18 +183,17 @@ abstract class MoviesViewModel : BaseViewModel<MoviesAction, MoviesResult, Movie
         }
     }
 
-    override fun sideEffect(result: MoviesResult): Event? {
-        return when (result) {
+    override fun resultToEvent(result: MoviesResult) {
+        when (result) {
             is RefreshError -> {
-                ShowSnackBar("Something went wrong. Please try again.")
+                setSingleEvent(ShowSnackBar("Something went wrong. Please try again."))
             }
             is LoadMoreLoading -> {
-                ShowToast("Loading more data.")
+                setSingleEvent(ShowToast("Loading more data."))
             }
             is LoadMoreError -> {
-                ShowToast("Load more error.")
+                setSingleEvent(ShowToast("Load more error."))
             }
-            else -> null
         }
     }
 

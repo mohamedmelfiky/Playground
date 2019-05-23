@@ -5,7 +5,7 @@ import com.example.domain.entity.Movie
 import com.example.mvisample.presentation.movies.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
-class TopRatedFragment : MoviesFragment<TopRatedViewModel>() {
+class TopRatedFragment : MoviesFragment() {
 
     override val viewModel: TopRatedViewModel by sharedViewModel()
 

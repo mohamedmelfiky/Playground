@@ -1,7 +1,7 @@
 package com.example.mvisample.presentation.movies
 
 import com.example.domain.entity.Movie
-import com.example.mvisample.presentation.base.BaseResult
+import com.example.mvisample.mvibase.BaseResult
 
 sealed class MoviesResult : BaseResult
 
