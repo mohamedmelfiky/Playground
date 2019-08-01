@@ -1,72 +1,52 @@
 package com.example.mvisample.mvibase
 
-import android.content.res.Resources
-import androidx.annotation.MainThread
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.domain.udf.BaseAction
+import com.example.domain.udf.BaseResult
+import com.example.domain.udf.Machine
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-private const val LOG_TAG = "MviState"
+@FlowPreview
+@ExperimentalCoroutinesApi
+abstract class BaseViewModel<E: BaseUiEvent, S : BaseUiModel>(
+    machine: Machine,
+    initialState: S
+): ViewModel() {
 
-abstract class BaseViewModel<A : BaseAction, R : BaseResult, S : BaseState>(initialState: S) : ViewModel() {
-
-    lateinit var resources: Resources
-    private val _resultMutableLiveData = MutableLiveData<R>()
-    private val resultMutableLiveData = Transformations.distinctUntilChanged(_resultMutableLiveData)
-    private val stateLiveData = MutableLiveData<S>(initialState)
-    private val singleEventLiveData = SingleLiveEvent<SingleEvent>()
-
-    private val resultObserver = Observer<R> { result: R ->
-        Timber.tag(LOG_TAG).d("Result: $result")
-        val newState = reducer(stateLiveData.value!!, result)
-        Timber.tag(LOG_TAG).d("State: $newState")
-        stateLiveData.value = newState
-        resultToEvent(result)
-    }
+    private val _uiEventChannel = Channel<E>()
+    private val actionsChannel = _uiEventChannel.consumeAsFlow()
+        .onEach { event -> Timber.tag("ChannelsEvent").i(event.toString()) }
+        .map(::eventToAction)
+        .onEach { action -> Timber.tag("ChannelsAction").i(action.toString()) }
+    private val _stateLiveData = MutableLiveData<S>()
+    val stateLiveData: LiveData<S> = _stateLiveData
 
     init {
-        Timber.tag(LOG_TAG).d("InitialState: $initialState")
+        machine.start(actionChannel = actionsChannel, scope = viewModelScope)
+        machine.resultsReceiveChannel.consumeAsFlow()
+            .distinctUntilChanged()
+            .scan(initialState) { state, result -> resultToUiModel(state, result) }
+            .onEach { state -> Timber.tag("ChannelsState").i(state.toString()) }
+            .flowOn(Dispatchers.Default)
+            .onEach { state -> _stateLiveData.value = state }
+            .flowOn(Dispatchers.Main)
+            .launchIn(viewModelScope)
     }
 
-    fun observe(owner: LifecycleOwner, stateObserver: Observer<S>, eventObserver: Observer<SingleEvent>) {
-        if (!resultMutableLiveData.hasObservers()) {
-            resultMutableLiveData.observeForever(resultObserver)
-        }
-        Transformations.distinctUntilChanged(stateLiveData).observe(owner, stateObserver)
-        singleEventLiveData.observe(owner, eventObserver)
+    fun sendEvent(uiEvent: E) = viewModelScope.launch {
+        _uiEventChannel.send(uiEvent)
     }
 
-    /*
-     * Runs in coroutine on main thread
-     */
-    protected abstract suspend fun actionToResult(action: A)
+    abstract suspend fun eventToAction(uiEvent: E): BaseAction
+    abstract suspend fun resultToUiModel(state: S, result: BaseResult): S
 
-    @MainThread
-    protected abstract fun reducer(previousState: S, result: R): S
-
-    @MainThread
-    protected abstract fun resultToEvent(result: R)
-
-    fun sendAction(action: A) {
-        Timber.tag(LOG_TAG).d("Action: $action")
-        viewModelScope.launch {
-            actionToResult(action)
-        }
-    }
-
-    @MainThread
-    protected fun setResult(result: R) {
-        _resultMutableLiveData.value = result
-    }
-
-    @MainThread
-    protected fun setSingleEvent(event: SingleEvent) {
-        Timber.tag(LOG_TAG).d("SingleEvent: $event")
-        singleEventLiveData.value = event
-    }
-
-    override fun onCleared() {
-        resultMutableLiveData.removeObserver(resultObserver)
-        super.onCleared()
-    }
 }

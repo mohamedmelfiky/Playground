@@ -2,45 +2,25 @@ package com.example.mvisample.mvibase
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
+import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 
-abstract class BaseFragment<A : BaseAction, R : BaseResult, S : BaseState> : Fragment() {
+@FlowPreview
+@ExperimentalCoroutinesApi
+abstract class BaseFragment<E: BaseUiEvent, S : BaseUiModel>(
+    @LayoutRes val contentLayoutId: Int
+): Fragment(contentLayoutId) {
 
-    protected abstract val viewModel: BaseViewModel<A, R, S>
-    protected lateinit var state: S
+    abstract val viewModel: BaseViewModel<E, S>
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.resources = resources
-        viewModel.observe(
-            this,
-            Observer {
-                state = it
-                renderState(it)
-            }
-            , Observer { onEvent(it) }
-        )
+        viewModel.stateLiveData.observe(this, Observer { state -> state?.let { renderState(it) } })
     }
 
     abstract fun renderState(state: S)
 
-    protected open fun onEvent(event: SingleEvent) {
-        when (event) {
-            is ShowSnackBar -> {
-                view?.let {
-                    Snackbar.make(it, event.text, Snackbar.LENGTH_SHORT).show()
-                }
-            }
-            is ShowToast -> {
-                Toast.makeText(requireContext(), event.text, Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    fun sendAction(action: A) {
-        viewModel.sendAction(action)
-    }
 }
