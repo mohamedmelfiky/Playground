@@ -17,9 +17,9 @@ class GetNowPlayingMoviesUseCase(
 ) : BaseUseCase<GetNowPlayingMoviesUseCase.NowPlayingAction, GetNowPlayingMoviesUseCase.NowPlayingResult>() {
 
     sealed class NowPlayingAction : BaseAction {
-        object Get: NowPlayingAction()
-        object NextPage: NowPlayingAction()
-        object Refresh: NowPlayingAction()
+        object Get : NowPlayingAction()
+        object NextPage : NowPlayingAction()
+        object Refresh : NowPlayingAction()
     }
 
     sealed class NowPlayingResult : BaseResult {
@@ -38,44 +38,46 @@ class GetNowPlayingMoviesUseCase(
 
     private var currentPage: Int = 1
 
-    override fun invoke(action: NowPlayingAction) =
-        flow {
-            emit(when(action) {
-                NowPlayingAction.Get,
-                NowPlayingAction.Refresh -> {
-                    currentPage = 1
-                    moviesRepo.getNowPlaying(currentPage)
-                }
-                NowPlayingAction.NextPage -> moviesRepo.getNowPlaying(++currentPage)
-            })
+    override fun invoke(action: NowPlayingAction) = flow { emit(execute(action)) }
+        .map { response -> mapToResult(action, response) }
+        .flowOn(Dispatchers.IO)
+        .onStart { emit(onStart(action)) }
+
+    private suspend fun execute(action: NowPlayingAction) = when (action) {
+        NowPlayingAction.Get,
+        NowPlayingAction.Refresh -> {
+            currentPage = 1
+            moviesRepo.getNowPlaying(currentPage)
         }
-            .map { response ->
-                when(action) {
-                    NowPlayingAction.Get -> {
-                        when (response) {
-                            is RequestResult.Success -> NowPlayingResult.Success(response.data)
-                            is RequestResult.Error -> NowPlayingResult.Error(response.exception)
-                        }
-                    }
-                    NowPlayingAction.NextPage -> {
-                        when (response) {
-                            is RequestResult.Success -> NowPlayingResult.NextPageSuccess(response.data)
-                            is RequestResult.Error -> NowPlayingResult.NextPageError(response.exception)
-                        }
-                    }
-                    NowPlayingAction.Refresh -> {
-                        when (response) {
-                            is RequestResult.Success -> NowPlayingResult.RefreshSuccess(response.data)
-                            is RequestResult.Error -> NowPlayingResult.RefreshError(response.exception)
-                        }
-                    }
+        NowPlayingAction.NextPage -> moviesRepo.getNowPlaying(++currentPage)
+    }
+
+    private fun onStart(action: NowPlayingAction) = when (action) {
+        NowPlayingAction.Get -> NowPlayingResult.Loading
+        NowPlayingAction.NextPage -> NowPlayingResult.NextPageLoading
+        NowPlayingAction.Refresh -> NowPlayingResult.RefreshLoading
+    }
+
+    private fun mapToResult(action: NowPlayingAction, response: RequestResult<List<Movie>>) =
+        when (action) {
+            NowPlayingAction.Get -> {
+                when (response) {
+                    is RequestResult.Success -> NowPlayingResult.Success(response.data)
+                    is RequestResult.Error -> NowPlayingResult.Error(response.exception)
                 }
             }
-            .flowOn(Dispatchers.IO)
-            .onStart { emit(when(action) {
-                NowPlayingAction.Get -> NowPlayingResult.Loading
-                NowPlayingAction.NextPage -> NowPlayingResult.NextPageLoading
-                NowPlayingAction.Refresh -> NowPlayingResult.RefreshLoading
-            }) }
+            NowPlayingAction.NextPage -> {
+                when (response) {
+                    is RequestResult.Success -> NowPlayingResult.NextPageSuccess(response.data)
+                    is RequestResult.Error -> NowPlayingResult.NextPageError(response.exception)
+                }
+            }
+            NowPlayingAction.Refresh -> {
+                when (response) {
+                    is RequestResult.Success -> NowPlayingResult.RefreshSuccess(response.data)
+                    is RequestResult.Error -> NowPlayingResult.RefreshError(response.exception)
+                }
+            }
+        }
 
 }

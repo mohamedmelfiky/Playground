@@ -32,7 +32,8 @@ abstract class BaseViewModel<E: BaseUiEvent, S : BaseUiModel>(
 
     init {
         machine.start(actionChannel = actionsChannel, scope = viewModelScope)
-        machine.resultsReceiveChannel.consumeAsFlow()
+        machine.resultsReceiveChannel
+            .consumeAsFlow()
             .distinctUntilChanged()
             .scan(initialState) { state, result -> resultToUiModel(state, result) }
             .onEach { state -> Timber.tag("ChannelsState").i(state.toString()) }
