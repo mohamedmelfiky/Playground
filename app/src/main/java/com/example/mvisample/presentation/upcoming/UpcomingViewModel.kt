@@ -1,6 +1,5 @@
 package com.example.mvisample.presentation.upcoming
 
-import android.view.View
 import com.example.domain.entity.MovieLoading
 import com.example.domain.udf.BaseAction
 import com.example.domain.udf.BaseResult
@@ -27,9 +26,9 @@ class UpcomingViewModel(
 
     override suspend fun resultToUiModel(state: MoviesUiModel, result: BaseResult): MoviesUiModel {
         return when (result) {
-            is GetUpcomingMoviesUseCase.UpcomingResult.Loading -> state.copy(loadingVisibility = View.VISIBLE)
-            is GetUpcomingMoviesUseCase.UpcomingResult.Success -> state.copy(loadingVisibility = View.GONE, mainViewVisibility = View.VISIBLE, movies = result.movies)
-            is GetUpcomingMoviesUseCase.UpcomingResult.Error -> state.copy(loadingVisibility = View.GONE, errorViewVisibility = View.VISIBLE)
+            is GetUpcomingMoviesUseCase.UpcomingResult.Loading -> state.copy(loadingVisibility = true)
+            is GetUpcomingMoviesUseCase.UpcomingResult.Success -> state.copy(loadingVisibility = false, mainViewVisibility = true, movies = result.movies)
+            is GetUpcomingMoviesUseCase.UpcomingResult.Error -> state.copy(loadingVisibility = false, errorViewVisibility = true)
 
             is GetUpcomingMoviesUseCase.UpcomingResult.NextPageLoading -> state.copy(isLoadingMore = true, movies = state.movies.plus(
                 MovieLoading

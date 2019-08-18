@@ -11,6 +11,7 @@ import com.example.mvisample.R
 import com.example.mvisample.mvibase.BaseFragment
 import com.example.mvisample.presentation.common.OnLoadMoreListener
 import com.example.mvisample.presentation.now_playing.NowPlayingFragmentDirections
+import com.example.mvisample.util.setVisivilty
 import kotlinx.android.synthetic.main.movies_fragment.*
 import kotlinx.android.synthetic.main.movies_fragment.view.*
 import kotlinx.android.synthetic.main.view_empty.*
@@ -30,7 +31,8 @@ abstract class MoviesFragment :
 
     abstract override val viewModel: MoviesViewModel
     private val adapter by lazy { MoviesAdapter(this) }
-    private val onLoadMoreListener = OnLoadMoreListener(5) { viewModel.sendEvent(MoviesEvents.LoadMore) }
+    private val onLoadMoreListener =
+        OnLoadMoreListener(5) { viewModel.sendEvent(MoviesEvents.LoadMore) }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -57,11 +59,11 @@ abstract class MoviesFragment :
 
     override fun renderState(state: MoviesUiModel) {
         adapter.submitList(state.movies)
-        moviesSrl.visibility = state.mainViewVisibility
-        loadingPb.visibility = state.loadingVisibility
+        moviesSrl.setVisivilty(state.mainViewVisibility)
+        loadingPb.setVisivilty(state.loadingVisibility)
+        emptyView.setVisivilty(state.emptyViewVisibility)
+        errorView.setVisivilty(state.errorViewVisibility)
         moviesSrl.isRefreshing = state.isRefreshing
-        emptyView.visibility = state.emptyViewVisibility
-        errorView.visibility = state.errorViewVisibility
         errorTv.text = state.errorText
         onLoadMoreListener.isLoading = state.isLoadingMore
         onLoadMoreListener.isLastPage = state.isLastPage

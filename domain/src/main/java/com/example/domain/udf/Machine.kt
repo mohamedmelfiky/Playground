@@ -11,7 +11,8 @@ import kotlinx.coroutines.flow.*
 @ExperimentalCoroutinesApi
 @FlowPreview
 abstract class Machine(
-    private val type: FlowType = FlowType.SWITCH
+    private val type: FlowType = FlowType.SWITCH,
+    private val logger: Logger
 ) {
 
     enum class FlowType {
@@ -41,7 +42,7 @@ abstract class Machine(
         actionChannel
             .switchMap(::actOnAction)
             .onEach { result -> _resultsChannel.send(result) }
-//            .onEach { result -> Timber.tag("ChannelsResult").i(result.toString()) }
+            .onEach { result -> logger.log("Result -> $result") }
             .catch { }
             .flowOn(Dispatchers.Default)
             .launchIn(scope)
@@ -54,7 +55,7 @@ abstract class Machine(
         actionChannel
             .flatMapConcat(::actOnAction)
             .onEach { result -> _resultsChannel.send(result) }
-//            .onEach { result -> Timber.tag("ChannelsResult").i(result.toString()) }
+            .onEach { result -> logger.log("Result -> $result") }
             .catch { }
             .flowOn(Dispatchers.Default)
             .launchIn(scope)
@@ -68,7 +69,7 @@ abstract class Machine(
             .onEach { action ->
                 actOnAction(action)
                     .onEach { result -> _resultsChannel.send(result) }
-//                    .onEach { result -> Timber.tag("ChannelsResult").i(result.toString()) }
+                    .onEach { result -> logger.log("Result -> $result") }
                     .flowOn(Dispatchers.Default)
                     .launchIn(scope)
             }

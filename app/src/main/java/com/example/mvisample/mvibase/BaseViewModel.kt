@@ -6,7 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.udf.BaseAction
 import com.example.domain.udf.BaseResult
+import com.example.domain.udf.Logger
 import com.example.domain.udf.Machine
+import com.example.mvisample.util.AndroidLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -19,14 +21,15 @@ import timber.log.Timber
 @ExperimentalCoroutinesApi
 abstract class BaseViewModel<E: BaseUiEvent, S : BaseUiModel>(
     machine: Machine,
-    initialState: S
+    initialState: S,
+    private val logger: Logger = AndroidLogger()
 ): ViewModel() {
 
     private val _uiEventChannel = Channel<E>()
     private val actionsChannel = _uiEventChannel.consumeAsFlow()
-        .onEach { event -> Timber.tag("ChannelsEvent").i(event.toString()) }
+        .onEach { event -> logger.log("Event  -> $event") }
         .map(::eventToAction)
-        .onEach { action -> Timber.tag("ChannelsAction").i(action.toString()) }
+        .onEach { action -> logger.log("Action -> $action") }
     private val _stateLiveData = MutableLiveData<S>()
     val stateLiveData: LiveData<S> = _stateLiveData
 
@@ -36,7 +39,7 @@ abstract class BaseViewModel<E: BaseUiEvent, S : BaseUiModel>(
             .consumeAsFlow()
             .distinctUntilChanged()
             .scan(initialState) { state, result -> resultToUiModel(state, result) }
-            .onEach { state -> Timber.tag("ChannelsState").i(state.toString()) }
+            .onEach { state -> logger.log("State  -> $state") }
             .flowOn(Dispatchers.Default)
             .onEach { state -> _stateLiveData.value = state }
             .flowOn(Dispatchers.Main)

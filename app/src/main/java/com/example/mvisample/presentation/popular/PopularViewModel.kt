@@ -1,6 +1,5 @@
 package com.example.mvisample.presentation.popular
 
-import android.view.View
 import com.example.domain.entity.MovieLoading
 import com.example.domain.udf.BaseAction
 import com.example.domain.udf.BaseResult
@@ -27,9 +26,9 @@ class PopularViewModel(
 
     override suspend fun resultToUiModel(state: MoviesUiModel, result: BaseResult): MoviesUiModel {
         return when (result) {
-            is GetPopularMoviesUseCase.PopularMoviesResult.Loading -> state.copy(loadingVisibility = View.VISIBLE)
-            is GetPopularMoviesUseCase.PopularMoviesResult.Success -> state.copy(loadingVisibility = View.GONE, mainViewVisibility = View.VISIBLE, movies = result.movies)
-            is GetPopularMoviesUseCase.PopularMoviesResult.Error -> state.copy(loadingVisibility = View.GONE, errorViewVisibility = View.VISIBLE)
+            is GetPopularMoviesUseCase.PopularMoviesResult.Loading -> state.copy(loadingVisibility = true)
+            is GetPopularMoviesUseCase.PopularMoviesResult.Success -> state.copy(loadingVisibility = false, mainViewVisibility = true, movies = result.movies)
+            is GetPopularMoviesUseCase.PopularMoviesResult.Error -> state.copy(loadingVisibility = false, errorViewVisibility = true)
 
             is GetPopularMoviesUseCase.PopularMoviesResult.NextPageLoading -> state.copy(isLoadingMore = true, movies = state.movies.plus(MovieLoading))
             is GetPopularMoviesUseCase.PopularMoviesResult.NextPageSuccess -> state.copy(isLoadingMore = false, movies = state.movies.dropLast(1).plus(result.movies))

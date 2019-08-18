@@ -4,6 +4,7 @@ import com.example.domain.entity.Movie
 import com.example.domain.entity.RequestResult
 import com.example.domain.repos.IMoviesRepo
 import com.example.data.remote.RemoteDataSource
+import kotlinx.coroutines.delay
 
 class MoviesRepo(
     private val remoteDataSource: RemoteDataSource
@@ -23,6 +24,11 @@ class MoviesRepo(
 
     override suspend fun getUpcoming(page: Int): RequestResult<List<Movie>> {
         return remoteDataSource.getUpcoming(page)
+    }
+
+    override suspend fun addToFavorite(movie: Movie): RequestResult<Movie> {
+        delay(2000)
+        return RequestResult.Success(movie)
     }
 
 }

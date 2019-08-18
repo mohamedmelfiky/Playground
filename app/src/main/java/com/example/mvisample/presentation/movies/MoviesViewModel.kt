@@ -33,11 +33,11 @@ sealed class MoviesEvents : BaseUiEvent {
 }
 
 data class MoviesUiModel(
-    val mainViewVisibility: Int = View.GONE,
-    val loadingVisibility: Int = View.GONE,
+    val mainViewVisibility: Boolean = false,
+    val loadingVisibility: Boolean = false,
     val isRefreshing: Boolean = false,
-    val emptyViewVisibility: Int = View.GONE,
-    val errorViewVisibility: Int = View.GONE,
+    val emptyViewVisibility: Boolean = false,
+    val errorViewVisibility: Boolean = false,
     val errorText: String = "",
     val isLoadingMore: Boolean = false,
     val isLastPage: Boolean = false,
