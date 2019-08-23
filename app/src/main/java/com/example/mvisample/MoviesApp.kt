@@ -17,7 +17,7 @@ class MoviesApp : Application() {
         super.onCreate()
         startKoin {
             androidContext(this@MoviesApp)
-            modules(*getModules())
+            modules(getModules())
         }
 
         if (BuildConfig.DEBUG) {

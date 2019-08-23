@@ -71,8 +71,8 @@ private val viewModelModule = module {
 
 @ExperimentalCoroutinesApi
 @FlowPreview
-fun getModules(): Array<Module> {
-    return arrayOf(
+fun getModules(): List<Module> {
+    return listOf(
         networkModule,
         remoteDataSourceModule,
         repositoryModule,
