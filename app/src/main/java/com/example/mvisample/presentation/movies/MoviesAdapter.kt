@@ -12,7 +12,9 @@ import com.example.domain.entity.Movie
 import com.example.domain.entity.MovieItem
 import com.example.domain.entity.MovieLoading
 import com.example.mvisample.R
+import com.example.mvisample.util.clicks
 import kotlinx.android.synthetic.main.item_movie.view.*
+import kotlinx.coroutines.flow.map
 
 const val LOADING_VIEW_TYPE = 0
 const val MOVIE_VIEW_TYPE = 1

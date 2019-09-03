@@ -8,8 +8,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.*
 
-@ExperimentalCoroutinesApi
 @FlowPreview
+@ExperimentalCoroutinesApi
 abstract class Machine(
     private val type: FlowType = FlowType.SWITCH,
     private val logger: Logger
@@ -40,7 +40,7 @@ abstract class Machine(
         scope: CoroutineScope
     ) {
         actionChannel
-            .switchMap(::actOnAction)
+            .flatMapLatest(::actOnAction)
             .onEach { result -> _resultsChannel.send(result) }
             .onEach { result -> logger.log("Result -> $result") }
             .catch { }
